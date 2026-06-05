@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Start Gemini</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+
+        button{
+            font-size:24px;
+            padding:20px 40px;
+            border:none;
+            border-radius:15px;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+
+<button onclick="startGemini()">🎤 Start Gemini</button>
+
+<script>
+function startGemini() {
+    fetch("https://trigger.macrodroid.com/1fe09eb3-043b-475f-8650-28464349ebac/start_gemini")
+        .then(() => alert("Command sent!"))
+        .catch(() => alert("Failed to send command"));
+}
+</script>
+
+</body>
+</html>
