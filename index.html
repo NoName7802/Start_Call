@@ -58,51 +58,30 @@
             font-size:16px;
         }
 
-        .intervalBox button{
-            padding:10px 15px;
-            font-size:16px;
-        }
-
         button{
             font-size:24px;
             padding:20px 40px;
             border:none;
             border-radius:15px;
             cursor:pointer;
-            transition:all 0.3s ease;
         }
 
-        .sending{
-            transform:scale(0.95);
-            opacity:0.8;
-        }
+        .sending{ transform:scale(0.95); opacity:0.8; }
 
-        .success{
-            background:#28a745;
-            color:white;
-        }
+        .success{ background:#28a745; color:white; }
 
-        .error{
-            background:#dc3545;
-            color:white;
-        }
+        .error{ background:#dc3545; color:white; }
 
-        #toggleBtn{
-            background:#007bff;
-            color:white;
-        }
+        #toggleBtn{ background:#007bff; color:white; }
 
-        #status{
-            font-size:18px;
-            font-weight:bold;
-        }
+        #status{ font-size:18px; font-weight:bold; }
 
-        #countdown{
-            font-size:20px;
-            font-weight:bold;
-        }
+        #countdown{ font-size:20px; font-weight:bold; }
+
+        #msg{ font-size:16px; font-weight:bold; }
     </style>
 </head>
+
 <body>
 
 <div class="settings">
@@ -112,33 +91,19 @@
     <label>From Number</label>
     <div class="phoneBox">
         <span>+880</span>
-        <input
-            type="tel"
-            id="fromNumber"
-            maxlength="10"
-            placeholder="1XXXXXXXXX">
+        <input type="tel" id="fromNumber" maxlength="10" placeholder="1XXXXXXXXX">
     </div>
 
     <label>To Number</label>
     <div class="phoneBox">
         <span>+880</span>
-        <input
-            type="tel"
-            id="toNumber"
-            maxlength="10"
-            placeholder="1XXXXXXXXX">
+        <input type="tel" id="toNumber" maxlength="10" placeholder="1XXXXXXXXX">
     </div>
 
     <label>Auto Trigger Interval</label>
 
     <div class="intervalBox">
-
-        <input
-            type="number"
-            id="intervalValue"
-            min="1"
-            max="3600"
-            value="45">
+        <input type="number" id="intervalValue" min="1" max="3600" value="45">
 
         <select id="intervalUnit">
             <option value="1">Seconds</option>
@@ -146,95 +111,114 @@
             <option value="3600">Hours</option>
         </select>
 
-        <button onclick="applyInterval()">
-            Apply
-        </button>
-
+        <button onclick="applyInterval()">Apply</button>
     </div>
 
 </div>
 
-<button id="geminiBtn" onclick="startCall()">
-    📞 Start Call
-</button>
+<button id="geminiBtn" onclick="startCall()">📞 Start Call</button>
+<button id="toggleBtn" onclick="toggleAuto()">⏸ Auto Send ON</button>
 
-<button id="toggleBtn" onclick="toggleAuto()">
-    ⏸ Auto Send ON
-</button>
-
-<div id="status">
-    Auto-send every 45 seconds
-</div>
-
-<div id="countdown">
-    Next trigger in: 45s
-</div>
+<div id="status">Auto-send every 45 seconds</div>
+<div id="countdown">Next trigger in: 45s</div>
+<div id="msg"></div>
 
 <script>
 
-const webhook =
-"https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
+// 🔥 YOUR REAL DATA
+const numberA = "1712089248";
+const numberB = "1726876252";
+
+const webhookA = "https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
+const webhookB = "https://trigger.macrodroid.com/6cb1ed42-d988-4b00-8b07-7bf9e4a90a1b/nn";
 
 let autoEnabled = true;
 let triggerInterval = 45;
 let countdown = 45;
 
+// normalize input (removes +880 if user types it)
+function normalize(num){
+    return num.replace(/\D/g,'').replace(/^880/,'');
+}
+
 function applyInterval(){
 
-    const value =
-        parseInt(document.getElementById("intervalValue").value);
+    const value = parseInt(document.getElementById("intervalValue").value);
+    const multiplier = parseInt(document.getElementById("intervalUnit").value);
 
-    const multiplier =
-        parseInt(document.getElementById("intervalUnit").value);
-
-    if(isNaN(value) || value < 1){
-        return;
-    }
+    if(isNaN(value) || value < 1) return;
 
     triggerInterval = value * multiplier;
     countdown = triggerInterval;
 
     document.getElementById("status").innerHTML =
-        "Auto-send every " + triggerInterval + " second(s)";
+        "Auto-send every " + triggerInterval + " seconds";
+}
+
+function getWebhook(from, to){
+
+    from = normalize(from);
+    to = normalize(to);
+
+    // A → B only
+    if(from === numberA && to === numberB) return webhookA;
+
+    // B → A only
+    if(from === numberB && to === numberA) return webhookB;
+
+    // known numbers but wrong pairing
+    if(
+        (from === numberA && to !== numberB) ||
+        (from === numberB && to !== numberA)
+    ){
+        return "MISMATCH";
+    }
+
+    return null;
 }
 
 function startCall(){
 
     const btn = document.getElementById("geminiBtn");
+    const msg = document.getElementById("msg");
 
-    const fromNumber =
-        document.getElementById("fromNumber").value;
+    let from = document.getElementById("fromNumber").value;
+    let to = document.getElementById("toNumber").value;
 
-    const toNumber =
-        document.getElementById("toNumber").value;
+    const result = getWebhook(from, to);
 
-    console.log("From:", "+880" + fromNumber);
-    console.log("To:", "+880" + toNumber);
+    if(result === null){
+        msg.style.color = "red";
+        msg.innerHTML = "❌ Number not found in database";
+        return;
+    }
+
+    if(result === "MISMATCH"){
+        msg.style.color = "red";
+        msg.innerHTML = "❌ Can't call this number (invalid pair)";
+        return;
+    }
+
+    msg.innerHTML = "";
 
     btn.classList.add("sending");
     btn.innerHTML = "Sending...";
 
-    fetch(webhook)
+    fetch(result)
         .then(() => {
-
             btn.classList.remove("sending");
             btn.classList.add("success");
             btn.innerHTML = "✅ Command Sent";
-
         })
         .catch(() => {
-
             btn.classList.remove("sending");
             btn.classList.add("error");
-            btn.innerHTML = "❌📵 Failed";
-
+            btn.innerHTML = "❌ Failed";
         });
 
     setTimeout(() => {
-
         btn.classList.remove("success","error");
         btn.innerHTML = "📞 Start Call";
-
     }, 2500);
 
     countdown = triggerInterval;
@@ -244,42 +228,13 @@ function toggleAuto(){
 
     autoEnabled = !autoEnabled;
 
-    const toggleBtn =
-        document.getElementById("toggleBtn");
+    document.getElementById("toggleBtn").innerHTML =
+        autoEnabled ? "⏸ Auto Send ON" : "▶ Auto Send OFF";
 
-    const status =
-        document.getElementById("status");
-
-    const countdownDiv =
-        document.getElementById("countdown");
-
-    if(autoEnabled){
-
-        toggleBtn.innerHTML =
-            "⏸ Auto Send ON";
-
-        status.innerHTML =
-            "Auto-send every " +
-            triggerInterval +
-            " second(s)";
-
-        countdownDiv.innerHTML =
-            "Next trigger in: " +
-            countdown +
-            "s";
-
-    }else{
-
-        toggleBtn.innerHTML =
-            "▶ Auto Send OFF";
-
-        status.innerHTML =
-            "Auto-send paused";
-
-        countdownDiv.innerHTML =
-            "Paused";
-
-    }
+    document.getElementById("status").innerHTML =
+        autoEnabled
+        ? "Auto-send every " + triggerInterval + " seconds"
+        : "Auto-send paused";
 }
 
 setInterval(() => {
@@ -289,18 +244,14 @@ setInterval(() => {
     countdown--;
 
     document.getElementById("countdown").innerHTML =
-        "Next trigger in: " +
-        countdown +
-        "s";
+        "Next trigger in: " + countdown + "s";
 
     if(countdown <= 0){
-
         startCall();
-
     }
 
 }, 1000);
-    
+
 </script>
 
 </body>
