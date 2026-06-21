@@ -130,6 +130,14 @@ circle{
     font-weight:bold;
 }
 
+/* 🔥 ADDED NOTE STYLE */
+.note{
+    margin-top:12px;
+    font-size:13px;
+    opacity:0.75;
+    line-height:1.4;
+}
+
 </style>
 </head>
 
@@ -174,6 +182,12 @@ circle{
 <div id="status">Auto: OFF</div>
 <div id="countdown">Timer disabled</div>
 
+<!-- 🔥 NOTE ADDED BACK -->
+<div class="note">
+Note: Currently, only a limited number of phone pairs are registered in the system.
+We are actively expanding the database to support more numbers soon. Stay tuned.
+</div>
+
 <!-- CIRCLE -->
 <div class="circleWrap">
 
@@ -200,12 +214,11 @@ const numberB="1726876252";
 const webhookA="https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
 const webhookB="https://trigger.macrodroid.com/6cb1ed42-d988-4b00-8b07-7bf9e4a90a1b/nn";
 
-// STATE (AUTO OFF BY DEFAULT)
+// STATE
 let auto=false;
 let interval=45;
 let countdown=45;
 
-// popup
 function show(msg){
     const p=document.getElementById("popup");
     p.innerText=msg;
@@ -213,7 +226,6 @@ function show(msg){
     setTimeout(()=>p.classList.remove("show"),2000);
 }
 
-// normalize
 function norm(n){
     if(!n) return "";
     n=String(n).replace(/\D/g,'');
@@ -222,7 +234,6 @@ function norm(n){
     return n;
 }
 
-// route
 function route(f,t){
 
     f=norm(f);
@@ -234,7 +245,6 @@ function route(f,t){
     return "ERR";
 }
 
-// apply timer
 function applyInterval(){
 
     interval=parseInt(document.getElementById("intervalValue").value)*
@@ -245,7 +255,6 @@ function applyInterval(){
     show("Interval set: "+interval+"s");
 }
 
-// manual trigger
 function startCall(){
 
     const f=document.getElementById("fromNumber").value;
@@ -264,7 +273,6 @@ function startCall(){
     countdown=interval;
 }
 
-// toggle auto
 function toggleAuto(){
 
     auto=!auto;
@@ -279,7 +287,6 @@ function toggleAuto(){
         auto?("Next trigger in: "+countdown+"s"):"Timer disabled";
 }
 
-// SAFE LOOP (NO NEGATIVE BUG)
 setInterval(()=>{
 
     if(!auto) return;
@@ -295,7 +302,6 @@ setInterval(()=>{
     document.getElementById("countdown").innerText=
         "Next trigger in: "+countdown+"s";
 
-    // circle
     const ring=document.getElementById("ring");
     const text=document.getElementById("ringText");
 
