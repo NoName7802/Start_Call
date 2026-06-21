@@ -1,256 +1,310 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Start Call</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call Control Console</title>
 
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
-            min-height:100vh;
-            margin:20px;
-            gap:20px;
-        }
+<style>
 
-        .settings{
-            width:90%;
-            max-width:450px;
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-        }
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial;
+    background:radial-gradient(circle at top,#0f172a,#020617);
+    color:white;
+}
 
-        .phoneBox{
-            display:flex;
-            align-items:center;
-            border:1px solid #ccc;
-            border-radius:10px;
-            overflow:hidden;
-        }
+.container{
+    width:92%;
+    max-width:520px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:18px;
+    padding:22px;
+}
 
-        .phoneBox span{
-            padding:12px;
-            background:#f0f0f0;
-            font-weight:bold;
-        }
+.phoneBox{
+    display:flex;
+    margin-bottom:10px;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.15);
+}
 
-        .phoneBox input{
-            flex:1;
-            padding:12px;
-            border:none;
-            outline:none;
-            font-size:16px;
-        }
+.phoneBox span{
+    padding:12px;
+    background:rgba(255,255,255,0.08);
+}
 
-        .intervalBox{
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-        }
+.phoneBox input{
+    flex:1;
+    padding:12px;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:white;
+}
 
-        .intervalBox input,
-        .intervalBox select{
-            padding:10px;
-            font-size:16px;
-        }
+.timerBox{
+    margin-top:12px;
+    padding:14px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+}
 
-        button{
-            font-size:24px;
-            padding:20px 40px;
-            border:none;
-            border-radius:15px;
-            cursor:pointer;
-        }
+.timerRow{
+    display:flex;
+    gap:10px;
+}
 
-        .sending{ transform:scale(0.95); opacity:0.8; }
+.timerRow input,
+.timerRow select{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    background:rgba(255,255,255,0.08);
+    color:white;
+}
 
-        .success{ background:#28a745; color:white; }
+button{
+    width:100%;
+    margin-top:10px;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
 
-        .error{ background:#dc3545; color:white; }
+.blue{background:#3b82f6;color:white;}
+.red{background:#ef4444;color:white;}
 
-        #toggleBtn{ background:#007bff; color:white; }
+.popup{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#111827;
+    padding:14px 18px;
+    border-radius:12px;
+    opacity:0;
+    transition:0.25s;
+    z-index:999;
+}
 
-        #status{ font-size:18px; font-weight:bold; }
+.popup.show{opacity:1;}
 
-        #countdown{ font-size:20px; font-weight:bold; }
+#status,#countdown{
+    margin-top:10px;
+    font-weight:bold;
+}
 
-        #msg{ font-size:16px; font-weight:bold; }
-    </style>
+.circleWrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top:15px;
+    position:relative;
+}
+
+svg{transform:rotate(-90deg);}
+
+circle{
+    fill:none;
+    stroke-width:8;
+    stroke-linecap:round;
+}
+
+.bg{stroke:rgba(255,255,255,0.1);}
+.progress{stroke:#3b82f6;}
+
+#ringText{
+    position:absolute;
+    font-size:18px;
+    font-weight:bold;
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="settings">
+<div class="popup" id="popup"></div>
 
-    <h2>Call Settings</h2>
+<div class="container">
 
-    <label>From Number</label>
-    <div class="phoneBox">
-        <span>+880</span>
-        <input type="tel" id="fromNumber" maxlength="10" placeholder="1XXXXXXXXX">
-    </div>
+<h2>📡 Call Control Console</h2>
 
-    <label>To Number</label>
-    <div class="phoneBox">
-        <span>+880</span>
-        <input type="tel" id="toNumber" maxlength="10" placeholder="1XXXXXXXXX">
-    </div>
+<label>From</label>
+<div class="phoneBox">
+    <span>+880</span>
+    <input id="fromNumber" type="tel">
+</div>
 
-    <label>Auto Trigger Interval</label>
+<label>To</label>
+<div class="phoneBox">
+    <span>+880</span>
+    <input id="toNumber" type="tel">
+</div>
 
-    <div class="intervalBox">
-        <input type="number" id="intervalValue" min="1" max="3600" value="45">
+<div class="timerBox">
 
+    <div class="timerRow">
+        <input type="number" id="intervalValue" value="45" min="1">
         <select id="intervalUnit">
             <option value="1">Seconds</option>
             <option value="60">Minutes</option>
             <option value="3600">Hours</option>
         </select>
-
-        <button onclick="applyInterval()">Apply</button>
     </div>
+
+    <button class="blue" onclick="applyInterval()">Apply Interval</button>
 
 </div>
 
-<button id="geminiBtn" onclick="startCall()">📞 Start Call</button>
-<button id="toggleBtn" onclick="toggleAuto()">⏸ Auto Send ON</button>
+<button class="blue" onclick="startCall()">Start Call</button>
+<button class="red" onclick="toggleAuto()" id="toggleBtn">Auto OFF</button>
 
-<div id="status">Auto-send every 45 seconds</div>
-<div id="countdown">Next trigger in: 45s</div>
-<div id="msg"></div>
+<div id="status">Auto: OFF</div>
+<div id="countdown">Timer disabled</div>
+
+<!-- CIRCLE -->
+<div class="circleWrap">
+
+<svg width="110" height="110">
+    <circle class="bg" cx="55" cy="55" r="50"></circle>
+    <circle class="progress" id="ring"
+        cx="55" cy="55" r="50"
+        stroke-dasharray="314"
+        stroke-dashoffset="314"></circle>
+</svg>
+
+<div id="ringText">0</div>
+
+</div>
+
+</div>
 
 <script>
 
-// 🔥 YOUR REAL DATA
-const numberA = "1712089248";
-const numberB = "1726876252";
+// DATABASE
+const numberA="1712089248";
+const numberB="1726876252";
 
-const webhookA = "https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
-const webhookB = "https://trigger.macrodroid.com/6cb1ed42-d988-4b00-8b07-7bf9e4a90a1b/nn";
+const webhookA="https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
+const webhookB="https://trigger.macrodroid.com/6cb1ed42-d988-4b00-8b07-7bf9e4a90a1b/nn";
 
-let autoEnabled = true;
-let triggerInterval = 45;
-let countdown = 45;
+// STATE (AUTO OFF BY DEFAULT)
+let auto=false;
+let interval=45;
+let countdown=45;
 
-// normalize input (removes +880 if user types it)
-function normalize(num){
-    return num.replace(/\D/g,'').replace(/^880/,'');
+// popup
+function show(msg){
+    const p=document.getElementById("popup");
+    p.innerText=msg;
+    p.classList.add("show");
+    setTimeout(()=>p.classList.remove("show"),2000);
 }
 
+// normalize
+function norm(n){
+    if(!n) return "";
+    n=String(n).replace(/\D/g,'');
+    if(n.startsWith("880")) n=n.slice(3);
+    if(n.startsWith("0")) n=n.slice(1);
+    return n;
+}
+
+// route
+function route(f,t){
+
+    f=norm(f);
+    t=norm(t);
+
+    if(f===numberA && t===numberB) return webhookA;
+    if(f===numberB && t===numberA) return webhookB;
+
+    return "ERR";
+}
+
+// apply timer
 function applyInterval(){
 
-    const value = parseInt(document.getElementById("intervalValue").value);
-    const multiplier = parseInt(document.getElementById("intervalUnit").value);
+    interval=parseInt(document.getElementById("intervalValue").value)*
+             parseInt(document.getElementById("intervalUnit").value);
 
-    if(isNaN(value) || value < 1) return;
+    countdown=interval;
 
-    triggerInterval = value * multiplier;
-    countdown = triggerInterval;
-
-    document.getElementById("status").innerHTML =
-        "Auto-send every " + triggerInterval + " seconds";
+    show("Interval set: "+interval+"s");
 }
 
-function getWebhook(from, to){
-
-    from = normalize(from);
-    to = normalize(to);
-
-    // A → B only
-    if(from === numberA && to === numberB) return webhookA;
-
-    // B → A only
-    if(from === numberB && to === numberA) return webhookB;
-
-    // known numbers but wrong pairing
-    if(
-        (from === numberA && to !== numberB) ||
-        (from === numberB && to !== numberA)
-    ){
-        return "MISMATCH";
-    }
-
-    return null;
-}
-
+// manual trigger
 function startCall(){
 
-    const btn = document.getElementById("geminiBtn");
-    const msg = document.getElementById("msg");
+    const f=document.getElementById("fromNumber").value;
+    const t=document.getElementById("toNumber").value;
 
-    let from = document.getElementById("fromNumber").value;
-    let to = document.getElementById("toNumber").value;
+    const res=route(f,t);
 
-    const result = getWebhook(from, to);
-
-    if(result === null){
-        msg.style.color = "red";
-        msg.innerHTML = "❌ Number not found in database";
+    if(res==="ERR"){
+        show("Number not found in database");
         return;
     }
 
-    if(result === "MISMATCH"){
-        msg.style.color = "red";
-        msg.innerHTML = "❌ Can't call this number (invalid pair)";
-        return;
-    }
+    fetch(res).catch(()=>show("Network error"));
+    show("Trigger sent");
 
-    msg.innerHTML = "";
-
-    btn.classList.add("sending");
-    btn.innerHTML = "Sending...";
-
-    fetch(result)
-        .then(() => {
-            btn.classList.remove("sending");
-            btn.classList.add("success");
-            btn.innerHTML = "✅ Command Sent";
-        })
-        .catch(() => {
-            btn.classList.remove("sending");
-            btn.classList.add("error");
-            btn.innerHTML = "❌ Failed";
-        });
-
-    setTimeout(() => {
-        btn.classList.remove("success","error");
-        btn.innerHTML = "📞 Start Call";
-    }, 2500);
-
-    countdown = triggerInterval;
+    countdown=interval;
 }
 
+// toggle auto
 function toggleAuto(){
 
-    autoEnabled = !autoEnabled;
+    auto=!auto;
 
-    document.getElementById("toggleBtn").innerHTML =
-        autoEnabled ? "⏸ Auto Send ON" : "▶ Auto Send OFF";
+    document.getElementById("toggleBtn").innerText=
+        auto?"Auto ON":"Auto OFF";
 
-    document.getElementById("status").innerHTML =
-        autoEnabled
-        ? "Auto-send every " + triggerInterval + " seconds"
-        : "Auto-send paused";
+    document.getElementById("status").innerText=
+        auto?"Auto: ON":"Auto: OFF";
+
+    document.getElementById("countdown").innerText=
+        auto?("Next trigger in: "+countdown+"s"):"Timer disabled";
 }
 
-setInterval(() => {
+// SAFE LOOP (NO NEGATIVE BUG)
+setInterval(()=>{
 
-    if(!autoEnabled) return;
+    if(!auto) return;
 
     countdown--;
 
-    document.getElementById("countdown").innerHTML =
-        "Next trigger in: " + countdown + "s";
-
-    if(countdown <= 0){
+    if(countdown<=0){
+        countdown=0;
         startCall();
+        countdown=interval;
     }
 
-}, 1000);
+    document.getElementById("countdown").innerText=
+        "Next trigger in: "+countdown+"s";
+
+    // circle
+    const ring=document.getElementById("ring");
+    const text=document.getElementById("ringText");
+
+    let p=countdown/interval;
+
+    ring.style.strokeDashoffset=314-314*p;
+    text.innerText=countdown;
+
+},1000);
 
 </script>
 
