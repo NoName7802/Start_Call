@@ -205,8 +205,31 @@ We are actively expanding the database to support more numbers soon. Stay tuned.
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>    
+
 <script>
 
+const firebaseConfig = {
+  apiKey: "AIzaSyCUJRidxx4ln2F09k6V6BX1SOwjRrn49Q8",
+  authDomain: "callcontrol-763b9.firebaseapp.com",
+  databaseURL: "https://callcontrol-763b9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "callcontrol-763b9",
+  storageBucket: "callcontrol-763b9.firebasestorage.app",
+  messagingSenderId: "953707696756",
+  appId: "1:953707696756:web:c72999ad288f9a8de47721",
+  measurementId: "G-CNC86ZSEDN"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+db.ref("test").set({
+  connected: true,
+  time: Date.now()
+});
+    
 // DATABASE
 const numberA="1712089248";
 const numberB="1726876252";
