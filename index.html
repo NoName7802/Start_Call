@@ -11,9 +11,56 @@
             flex-direction:column;
             justify-content:center;
             align-items:center;
-            height:100vh;
-            margin:0;
+            min-height:100vh;
+            margin:20px;
             gap:20px;
+        }
+
+        .settings{
+            width:90%;
+            max-width:450px;
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+        }
+
+        .phoneBox{
+            display:flex;
+            align-items:center;
+            border:1px solid #ccc;
+            border-radius:10px;
+            overflow:hidden;
+        }
+
+        .phoneBox span{
+            padding:12px;
+            background:#f0f0f0;
+            font-weight:bold;
+        }
+
+        .phoneBox input{
+            flex:1;
+            padding:12px;
+            border:none;
+            outline:none;
+            font-size:16px;
+        }
+
+        .intervalBox{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .intervalBox input,
+        .intervalBox select{
+            padding:10px;
+            font-size:16px;
+        }
+
+        .intervalBox button{
+            padding:10px 15px;
+            font-size:16px;
         }
 
         button{
@@ -58,7 +105,56 @@
 </head>
 <body>
 
-<button id="geminiBtn" onclick="startGemini()">
+<div class="settings">
+
+    <h2>Call Settings</h2>
+
+    <label>From Number</label>
+    <div class="phoneBox">
+        <span>+880</span>
+        <input
+            type="tel"
+            id="fromNumber"
+            maxlength="10"
+            placeholder="1XXXXXXXXX">
+    </div>
+
+    <label>To Number</label>
+    <div class="phoneBox">
+        <span>+880</span>
+        <input
+            type="tel"
+            id="toNumber"
+            maxlength="10"
+            placeholder="1XXXXXXXXX">
+    </div>
+
+    <label>Auto Trigger Interval</label>
+
+    <div class="intervalBox">
+
+        <input
+            type="number"
+            id="intervalValue"
+            min="1"
+            max="3600"
+            value="45">
+
+        <select id="intervalUnit">
+            <option value="1">Seconds</option>
+            <option value="60">Minutes</option>
+            <option value="3600">Hours</option>
+        </select>
+
+        <button onclick="applyInterval()">
+            Apply
+        </button>
+
+    </div>
+
+</div>
+
+<button id="geminiBtn" onclick="startCall()">
     📞 Start Call
 </button>
 
@@ -80,51 +176,109 @@ const webhook =
 "https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
 
 let autoEnabled = true;
+let triggerInterval = 45;
 let countdown = 45;
 
-function startGemini() {
+function applyInterval(){
+
+    const value =
+        parseInt(document.getElementById("intervalValue").value);
+
+    const multiplier =
+        parseInt(document.getElementById("intervalUnit").value);
+
+    if(isNaN(value) || value < 1){
+        return;
+    }
+
+    triggerInterval = value * multiplier;
+    countdown = triggerInterval;
+
+    document.getElementById("status").innerHTML =
+        "Auto-send every " + triggerInterval + " second(s)";
+}
+
+function startCall(){
 
     const btn = document.getElementById("geminiBtn");
+
+    const fromNumber =
+        document.getElementById("fromNumber").value;
+
+    const toNumber =
+        document.getElementById("toNumber").value;
+
+    console.log("From:", "+880" + fromNumber);
+    console.log("To:", "+880" + toNumber);
 
     btn.classList.add("sending");
     btn.innerHTML = "Sending...";
 
     fetch(webhook)
         .then(() => {
+
             btn.classList.remove("sending");
             btn.classList.add("success");
             btn.innerHTML = "✅ Command Sent";
+
         })
         .catch(() => {
+
             btn.classList.remove("sending");
             btn.classList.add("error");
             btn.innerHTML = "❌📵 Failed";
+
         });
 
     setTimeout(() => {
-        btn.classList.remove("success", "error");
+
+        btn.classList.remove("success","error");
         btn.innerHTML = "📞 Start Call";
+
     }, 2500);
 
-    countdown = 45;
+    countdown = triggerInterval;
 }
 
 function toggleAuto(){
 
     autoEnabled = !autoEnabled;
 
-    const toggleBtn = document.getElementById("toggleBtn");
-    const status = document.getElementById("status");
-    const countdownDiv = document.getElementById("countdown");
+    const toggleBtn =
+        document.getElementById("toggleBtn");
+
+    const status =
+        document.getElementById("status");
+
+    const countdownDiv =
+        document.getElementById("countdown");
 
     if(autoEnabled){
-        toggleBtn.innerHTML = "⏸ Auto Send ON";
-        status.innerHTML = "Auto-send every 45 seconds";
-        countdownDiv.innerHTML = `Next trigger in: ${countdown}s`;
+
+        toggleBtn.innerHTML =
+            "⏸ Auto Send ON";
+
+        status.innerHTML =
+            "Auto-send every " +
+            triggerInterval +
+            " second(s)";
+
+        countdownDiv.innerHTML =
+            "Next trigger in: " +
+            countdown +
+            "s";
+
     }else{
-        toggleBtn.innerHTML = "▶ Auto Send OFF";
-        status.innerHTML = "Auto-send paused";
-        countdownDiv.innerHTML = "Paused";
+
+        toggleBtn.innerHTML =
+            "▶ Auto Send OFF";
+
+        status.innerHTML =
+            "Auto-send paused";
+
+        countdownDiv.innerHTML =
+            "Paused";
+
     }
 }
 
@@ -135,15 +289,19 @@ setInterval(() => {
     countdown--;
 
     document.getElementById("countdown").innerHTML =
-        `Next trigger in: ${countdown}s`;
+        "Next trigger in: " +
+        countdown +
+        "s";
 
     if(countdown <= 0){
-        startGemini();
+
+        startCall();
+
     }
 
 }, 1000);
 
-startGemini();
+startCall();
 
 </script>
 
