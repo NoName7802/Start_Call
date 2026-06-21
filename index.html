@@ -19,18 +19,57 @@
             border:none;
             border-radius:15px;
             cursor:pointer;
+            transition:all 0.3s ease;
+        }
+
+        .sending{
+            transform:scale(0.95);
+            opacity:0.8;
+        }
+
+        .success{
+            background:#28a745;
+            color:white;
+        }
+
+        .error{
+            background:#dc3545;
+            color:white;
         }
     </style>
 </head>
 <body>
 
-<button onclick="startGemini()">🎤 Start Gemini</button>
+<button id="geminiBtn" onclick="startGemini()">
+    🎤 Start Gemini
+</button>
 
 <script>
 function startGemini() {
+    const btn = document.getElementById("geminiBtn");
+
+    btn.disabled = true;
+    btn.classList.add("sending");
+    btn.innerHTML = "Sending...";
+
     fetch("https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr")
-        .then(() => alert("Command sent!"))
-        .catch(() => alert("Failed to send command"));
+        .then(() => {
+            btn.classList.remove("sending");
+            btn.classList.add("success");
+            btn.innerHTML = "✅ Command Sent";
+        })
+        .catch(() => {
+            btn.classList.remove("sending");
+            btn.classList.add("error");
+            btn.innerHTML = "❌ Failed";
+        });
+
+    // Reset after 3 seconds
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove("success", "error");
+        btn.innerHTML = "🎤 Start Gemini";
+    }, 3000);
 }
 </script>
 
