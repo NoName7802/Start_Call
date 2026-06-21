@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Start Gemini</title>
+    <title>Start Call</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body{
@@ -41,7 +41,7 @@
 <body>
 
 <button id="geminiBtn" onclick="startGemini()">
-    🎤 Start Gemini
+    📞 Start Call
 </button>
 
 <script>
@@ -61,14 +61,14 @@ function startGemini() {
         .catch(() => {
             btn.classList.remove("sending");
             btn.classList.add("error");
-            btn.innerHTML = "❌ Failed";
+            btn.innerHTML = "❌📵 Failed";
         });
 
     // Reset after 3 seconds
     setTimeout(() => {
         btn.disabled = false;
         btn.classList.remove("success", "error");
-        btn.innerHTML = "🎤 Start Gemini";
+        btn.innerHTML = "📞 Start Call";
     }, 3000);
 }
 </script>
