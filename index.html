@@ -3,14 +3,17 @@
 <head>
     <title>Start Call</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
         body{
             font-family: Arial, sans-serif;
             display:flex;
+            flex-direction:column;
             justify-content:center;
             align-items:center;
             height:100vh;
             margin:0;
+            gap:20px;
         }
 
         button{
@@ -36,6 +39,21 @@
             background:#dc3545;
             color:white;
         }
+
+        #toggleBtn{
+            background:#007bff;
+            color:white;
+        }
+
+        #status{
+            font-size:18px;
+            font-weight:bold;
+        }
+
+        #countdown{
+            font-size:20px;
+            font-weight:bold;
+        }
     </style>
 </head>
 <body>
@@ -44,15 +62,34 @@
     📞 Start Call
 </button>
 
+<button id="toggleBtn" onclick="toggleAuto()">
+    ⏸ Auto Send ON
+</button>
+
+<div id="status">
+    Auto-send every 45 seconds
+</div>
+
+<div id="countdown">
+    Next trigger in: 45s
+</div>
+
 <script>
+
+const webhook =
+"https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
+
+let autoEnabled = true;
+let countdown = 45;
+
 function startGemini() {
+
     const btn = document.getElementById("geminiBtn");
 
-    btn.disabled = true;
     btn.classList.add("sending");
     btn.innerHTML = "Sending...";
 
-    fetch("https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr")
+    fetch(webhook)
         .then(() => {
             btn.classList.remove("sending");
             btn.classList.add("success");
@@ -64,13 +101,50 @@ function startGemini() {
             btn.innerHTML = "❌📵 Failed";
         });
 
-    // Reset after 3 seconds
     setTimeout(() => {
-        btn.disabled = false;
         btn.classList.remove("success", "error");
         btn.innerHTML = "📞 Start Call";
     }, 2500);
+
+    countdown = 45;
 }
+
+function toggleAuto(){
+
+    autoEnabled = !autoEnabled;
+
+    const toggleBtn = document.getElementById("toggleBtn");
+    const status = document.getElementById("status");
+    const countdownDiv = document.getElementById("countdown");
+
+    if(autoEnabled){
+        toggleBtn.innerHTML = "⏸ Auto Send ON";
+        status.innerHTML = "Auto-send every 45 seconds";
+        countdownDiv.innerHTML = `Next trigger in: ${countdown}s`;
+    }else{
+        toggleBtn.innerHTML = "▶ Auto Send OFF";
+        status.innerHTML = "Auto-send paused";
+        countdownDiv.innerHTML = "Paused";
+    }
+}
+
+setInterval(() => {
+
+    if(!autoEnabled) return;
+
+    countdown--;
+
+    document.getElementById("countdown").innerHTML =
+        `Next trigger in: ${countdown}s`;
+
+    if(countdown <= 0){
+        startGemini();
+    }
+
+}, 1000);
+
+startGemini();
+
 </script>
 
 </body>
