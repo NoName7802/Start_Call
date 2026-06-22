@@ -64,8 +64,8 @@
     <div class="phoneBox"><span>+880</span><input id="fromNumber" type="tel" inputmode="numeric" maxlength="10"></div>
 
     <label>To</label>
-    <div class="phoneBox"><span>+880</span><input id="toNumber" type="tel" inputmode="numeric" maxlength="10"></div>
-
+    <div class="phoneBox"><span>+880</span><input id="toNumber" type="text" inputmode="text" maxlength="11"></div>
+    
     <!-- Timer ring (hidden when Auto OFF) -->
     <div class="circleWrap" id="timerRing">
         <svg width="110" height="110">
@@ -204,10 +204,11 @@ function show(msg, isError = false) {
 async function startCall() {
     const f = document.getElementById("fromNumber").value;
     const t = document.getElementById("toNumber").value;
-    const nf = norm(f);
-    const nt = formatForCall(t);
+    const nf = norm(f);                    // From still normalized for lookup
+    const nt = t.trim();                   // To = raw input (no formatting)
 
-    if (nf.length !== 10 || nt.length !== 11) return show("Enter valid 10 digit numbers", true);
+    if (nf.length !== 10) return show("From must be 10 digits", true);
+    if (nt.length < 1 || nt.length > 11) return show("To must be 1-11 characters (digits, *, #)", true);
 
     if (blockedNumbers.includes(nf) || blockedNumbers.includes(nt)) {
         return show("This number is blocked", true);
@@ -255,7 +256,7 @@ async function startCall() {
 
     countdown = interval;
 }
-
+    
 function addRegisteredNumber() {
     const num = norm(document.getElementById("regNumber").value);
     const url = document.getElementById("regWebhook").value.trim();
@@ -346,13 +347,18 @@ setInterval(() => {
     document.getElementById("ringText").textContent = countdown;
 }, 1000);
 
-// Live input cleaning
-document.querySelectorAll('input[type="tel"]').forEach(inp => {
-    inp.addEventListener('input', () => {
-        inp.value = inp.value.replace(/\D/g, '').slice(0,10);
-    });
+// Live input cleaning - From = only digits, To = digits + * + #
+document.getElementById("fromNumber").addEventListener('input', () => {
+    let val = document.getElementById("fromNumber").value;
+    val = val.replace(/\D/g, '').slice(0,10);
+    document.getElementById("fromNumber").value = val;
 });
 
+document.getElementById("toNumber").addEventListener('input', () => {
+    let val = document.getElementById("toNumber").value;
+    val = val.replace(/[^0-9*#]/g, '').slice(0,11);
+    document.getElementById("toNumber").value = val;
+});
 // Initialize timer visibility on page load (Auto is OFF by default)
 updateTimerVisibility();
 </script>
