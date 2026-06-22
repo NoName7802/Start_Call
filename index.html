@@ -42,7 +42,7 @@
         .red { background:#ef4444; color:white; }
         .popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#111827; padding:14px 18px; border-radius:12px; opacity:0; transition:all 0.25s; z-index:999; }
         .popup.show { opacity:1; }
-        #status, #countdown { margin-top:10px; font-weight:bold; }
+        #status, #countdown { margin-top:8px; font-weight:bold; }
         .circleWrap { display:flex; justify-content:center; align-items:center; margin-top:15px; position:relative; }
         svg { transform:rotate(-90deg); }
         circle { fill:none; stroke-width:8; stroke-linecap:round; }
@@ -66,7 +66,17 @@
     <label>To</label>
     <div class="phoneBox"><span>+880</span><input id="toNumber" type="tel" inputmode="numeric" maxlength="10"></div>
 
-    <div class="box">
+    <!-- Timer ring (hidden when Auto OFF) -->
+    <div class="circleWrap" id="timerRing">
+        <svg width="110" height="110">
+            <circle class="bg" cx="55" cy="55" r="50"></circle>
+            <circle class="progress" id="ring" cx="55" cy="55" r="50" stroke-dasharray="314" stroke-dashoffset="314"></circle>
+        </svg>
+        <div id="ringText">0</div>
+    </div>
+
+    <!-- Timer settings (hidden when Auto OFF) -->
+    <div class="box" id="timerSettings">
         <div class="timerRow">
             <input type="number" id="intervalValue" value="45" min="1">
             <select id="intervalUnit">
@@ -89,14 +99,6 @@
     <div class="note">
         Note: Only registered numbers are supported.
     </div>
-
-    <div class="circleWrap">
-        <svg width="110" height="110">
-            <circle class="bg" cx="55" cy="55" r="50"></circle>
-            <circle class="progress" id="ring" cx="55" cy="55" r="50" stroke-dasharray="314" stroke-dashoffset="314"></circle>
-        </svg>
-        <div id="ringText">0</div>
-    </div>
 </div>
 
 <!-- Blocked Modal -->
@@ -115,12 +117,8 @@
 <div class="modal" id="registeredModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:1000;">
     <div style="background:#1e2937;width:90%;max-width:460px;border-radius:16px;padding:20px;">
         <h3>📱 Add / Update Registered Number</h3>
-        <div class="timerRow">
-            <input id="regNumber" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number">
-        </div>
-        <div class="timerRow" style="margin-top:8px;">
-            <input id="regWebhook" type="text" placeholder="Full webhook URL">
-        </div>
+        <div class="timerRow"><input id="regNumber" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number"></div>
+        <div class="timerRow" style="margin-top:8px;"><input id="regWebhook" type="text" placeholder="Full webhook URL"></div>
         <button class="blue" onclick="addRegisteredNumber()">Save</button>
         <button onclick="closeRegisteredModal()" style="background:#475569;margin-top:10px;">Close</button>
     </div>
@@ -132,7 +130,7 @@
         <h3>ℹ️ Help</h3>
         <div style="font-size:14px;line-height:1.5;color:#cbd5e1;">
             <p>• Enter a registered number in "From" field from where the call will be placed.</p>
-            <p>• Enter any number in "To" field where the call will ring.  (10 digits).</p>
+            <p>• Enter any number in "To" field where the call will ring. (10 digits).</p>
             <p>• The app automatically adds 0 for calling, so avoid adding 0 at the beginning of numbers.</p>
             <p>• Use Auto mode for repeated calls.</p>
             <p>• Use Manage registered numbers to register a new number along with url.</p>
@@ -167,6 +165,20 @@ let registeredNumbers = {};
 db.ref("blockedNumbers").on("value", snap => blockedNumbers = Array.isArray(snap.val()) ? snap.val() : []);
 db.ref("registeredNumbers").on("value", snap => registeredNumbers = snap.val() || {});
 
+// Hide timer elements on page load (Auto is OFF by default)
+function updateTimerVisibility() {
+    const ring = document.getElementById("timerRing");
+    const settings = document.getElementById("timerSettings");
+    
+    if (auto) {
+        ring.style.display = "flex";
+        settings.style.display = "block";
+    } else {
+        ring.style.display = "none";
+        settings.style.display = "none";
+    }
+}
+
 function norm(n) {
     if (!n) return "";
     n = String(n).replace(/\D/g,'');
@@ -186,7 +198,7 @@ function show(msg, isError = false) {
     p.textContent = msg;
     p.style.background = isError ? "#991b1b" : "#111827";
     p.classList.add("show");
-    setTimeout(() => p.classList.remove("show"), 2800);
+    setTimeout(() => p.classList.remove("show"), 3500);
 }
 
 async function startCall() {
@@ -196,10 +208,16 @@ async function startCall() {
     const nt = formatForCall(t);
 
     if (nf.length !== 10 || nt.length !== 11) return show("Enter valid 10 digit numbers", true);
-    if (blockedNumbers.includes(nf) || blockedNumbers.includes(nt)) return show("This number is blocked", true);
+
+    if (blockedNumbers.includes(nf) || blockedNumbers.includes(nt)) {
+        return show("This number is blocked", true);
+    }
 
     const triggerUrl = registeredNumbers[nf];
     if (!triggerUrl) return show("Number not found in database", true);
+
+    db.ref("status").set({ received: false, number: nt });
+    db.ref("callStatus").set({ received: false, number: nt });
 
     try {
         await fetch(triggerUrl, {
@@ -207,10 +225,33 @@ async function startCall() {
             mode: 'no-cors',
             body: nt
         });
-        show(`Calling ${nt} from ${nf}`);
+        show(`Trigger sent - Calling ${nt} from ${nf}`);
     } catch (e) {
         show("Network or webhook error", true);
+        return;
     }
+
+    const statusRef = db.ref("status");
+    const callStatusRef = db.ref("callStatus");
+
+    const onReceived = (snap) => {
+        const data = snap.val();
+        if (data && data.received === true) {
+            show(`✅ Trigger received on phone`);
+            statusRef.off();
+            callStatusRef.off();
+            if (timeoutId) clearTimeout(timeoutId);
+        }
+    };
+
+    statusRef.on("value", onReceived);
+    callStatusRef.on("value", onReceived);
+
+    let timeoutId = setTimeout(() => {
+        show("❌ Trigger wasn't received", true);
+        statusRef.off();
+        callStatusRef.off();
+    }, 4000);
 
     countdown = interval;
 }
@@ -266,6 +307,8 @@ function toggleAuto() {
     document.getElementById("toggleBtn").textContent = auto ? "Auto ON" : "Auto OFF";
     document.getElementById("status").textContent = auto ? "Auto: ON" : "Auto: OFF";
     document.getElementById("countdown").textContent = auto ? `Next trigger in: ${countdown}s` : "Timer disabled";
+    
+    updateTimerVisibility();   // ← Show/Hide timer when Auto changes
 }
 
 function openBlockedModal() {
@@ -309,6 +352,9 @@ document.querySelectorAll('input[type="tel"]').forEach(inp => {
         inp.value = inp.value.replace(/\D/g, '').slice(0,10);
     });
 });
+
+// Initialize timer visibility on page load (Auto is OFF by default)
+updateTimerVisibility();
 </script>
 </body>
 </html>
