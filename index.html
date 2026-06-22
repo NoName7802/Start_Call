@@ -5,226 +5,67 @@
     <title>Call Control Console</title>
 
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            background: radial-gradient(circle at top, #0f172a, #020617);
-            color: white;
-        }
-
-        .container {
-            width: 92%;
-            max-width: 520px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 18px;
-            padding: 22px;
-            position: relative;
-        }
-
+        body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; font-family:Arial,sans-serif; background:radial-gradient(circle at top,#0f172a,#020617); color:white; }
+        .container { width:92%; max-width:520px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:22px; position:relative; }
+        
         .help-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            padding: 5px 12px;
-            font-size: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 9999px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            z-index: 20;
-            font-weight: bold;
-            min-width: auto;
-            width: auto;
-            display: inline-block;
+            position: absolute !important;
+            top: 16px !important;
+            right: 16px !important;
+            padding: 4px 10px !important;
+            font-size: 11px !important;
+            background: #2563eb !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 9999px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5) !important;
+            z-index: 30 !important;
+            font-weight: bold !important;
+            min-width: auto !important;
+            width: auto !important;
+            max-width: none !important;
+            height: auto !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
         }
+        .help-btn:hover { background: #3b82f6 !important; }
 
-        .help-btn:hover {
-            background: #3b82f6;
-        }
-
-        .phoneBox {
-            display: flex;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .phoneBox span {
-            padding: 12px;
-            background: rgba(255,255,255,0.08);
-            white-space: nowrap;
-        }
-
-        .phoneBox input {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: white;
-        }
-
-        .box {
-            margin-top: 12px;
-            padding: 14px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .timerRow {
-            display: flex;
-            gap: 10px;
-        }
-
-        .timerRow input,
-        .timerRow select {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            outline: none;
-            background: rgba(255,255,255,0.08);
-            color: white;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 10px;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .blue { background: #3b82f6; color: white; }
-        .red { background: #ef4444; color: white; }
-
-        .popup {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111827;
-            padding: 14px 18px;
-            border-radius: 12px;
-            opacity: 0;
-            transition: all 0.25s;
-            z-index: 999;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
-        }
-
-        .popup.show { opacity: 1; }
-
-        #status, #countdown {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .circleWrap {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 15px;
-            position: relative;
-        }
-
-        svg { transform: rotate(-90deg); }
-
-        circle {
-            fill: none;
-            stroke-width: 8;
-            stroke-linecap: round;
-        }
-
-        .bg { stroke: rgba(255,255,255,0.1); }
-        .progress { stroke: #3b82f6; transition: stroke-dashoffset 0.3s linear; }
-
-        #ringText {
-            position: absolute;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .note {
-            margin-top: 12px;
-            font-size: 13px;
-            opacity: 0.75;
-            line-height: 1.4;
-        }
-
-        .how-it-works {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #cbd5e1;
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #1e2937;
-            width: 90%;
-            max-width: 460px;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-        }
+        .phoneBox { display:flex; margin-bottom:10px; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); }
+        .phoneBox span { padding:12px; background:rgba(255,255,255,0.08); }
+        .phoneBox input { flex:1; padding:12px; border:none; outline:none; background:transparent; color:white; }
+        .box { margin-top:12px; padding:14px; border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); }
+        .timerRow { display:flex; gap:10px; }
+        .timerRow input, .timerRow select { flex:1; padding:12px; border-radius:10px; border:none; outline:none; background:rgba(255,255,255,0.08); color:white; }
+        button { width:100%; margin-top:10px; padding:16px; border:none; border-radius:12px; font-size:18px; cursor:pointer; }
+        .blue { background:#3b82f6; color:white; }
+        .red { background:#ef4444; color:white; }
+        .popup { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#111827; padding:14px 18px; border-radius:12px; opacity:0; transition:all 0.25s; z-index:999; }
+        .popup.show { opacity:1; }
+        #status, #countdown { margin-top:10px; font-weight:bold; }
+        .circleWrap { display:flex; justify-content:center; align-items:center; margin-top:15px; position:relative; }
+        svg { transform:rotate(-90deg); }
+        circle { fill:none; stroke-width:8; stroke-linecap:round; }
+        .bg { stroke:rgba(255,255,255,0.1); }
+        .progress { stroke:#3b82f6; }
+        #ringText { position:absolute; font-size:18px; font-weight:bold; }
+        .note { margin-top:12px; font-size:13px; opacity:0.75; line-height:1.4; }
     </style>
 </head>
-
 <body>
 
 <div class="popup" id="popup"></div>
 
 <div class="container">
-
     <button class="help-btn" onclick="openHelpModal()">Help</button>
-
-    <h2 style="margin-top: 35px;">📡 Call Control Console</h2>
+    <h2 style="margin-top:40px;">📡 Call Control Console</h2>
 
     <label>From</label>
-    <div class="phoneBox">
-        <span>+880</span>
-        <input id="fromNumber" type="tel" inputmode="numeric" maxlength="10">
-    </div>
+    <div class="phoneBox"><span>+880</span><input id="fromNumber" type="tel" inputmode="numeric" maxlength="10"></div>
 
     <label>To</label>
-    <div class="phoneBox">
-        <span>+880</span>
-        <input id="toNumber" type="tel" inputmode="numeric" maxlength="10">
-    </div>
+    <div class="phoneBox"><span>+880</span><input id="toNumber" type="tel" inputmode="numeric" maxlength="10"></div>
 
-    <!-- Timer -->
     <div class="box">
         <div class="timerRow">
             <input type="number" id="intervalValue" value="45" min="1">
@@ -239,76 +80,64 @@
 
     <button class="blue" onclick="startCall()">Start Call</button>
     <button class="blue" onclick="openBlockedModal()">Manage Blocked Numbers</button>
+    <button class="blue" onclick="openRegisteredModal()">Manage Registered Numbers</button>
     <button class="red" onclick="toggleAuto()" id="toggleBtn">Auto OFF</button>
 
     <div id="status">Auto: OFF</div>
     <div id="countdown">Timer disabled</div>
 
     <div class="note">
-        Note: Currently, only a limited number of phone pairs are registered in the system.
-        We are actively expanding the database to support more numbers soon. Stay tuned.
+        Note: Only registered numbers are supported.
     </div>
 
     <div class="circleWrap">
         <svg width="110" height="110">
             <circle class="bg" cx="55" cy="55" r="50"></circle>
-            <circle class="progress" id="ring"
-                cx="55" cy="55" r="50"
-                stroke-dasharray="314"
-                stroke-dashoffset="314"></circle>
+            <circle class="progress" id="ring" cx="55" cy="55" r="50" stroke-dasharray="314" stroke-dashoffset="314"></circle>
         </svg>
         <div id="ringText">0</div>
     </div>
-
 </div>
 
-<!-- Blocked Numbers Modal -->
-<div class="modal" id="blockedModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>🚫 Blocked Numbers</h3>
-            <button onclick="closeBlockedModal()" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;">&times;</button>
-        </div>
-        
-        <div class="timerRow">
-            <input id="blockInput" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit number">
-        </div>
-        
+<!-- Blocked Modal -->
+<div class="modal" id="blockedModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:1000;">
+    <div style="background:#1e2937;width:90%;max-width:420px;border-radius:16px;padding:20px;">
+        <h3>🚫 Blocked Numbers</h3>
+        <div class="timerRow"><input id="blockInput" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit number"></div>
         <button class="red" onclick="blockNumber()">Block Number</button>
         <button class="blue" onclick="unblockNumber()">Unblock Number</button>
-        
-        <div id="blockedList" class="blocked-list"></div>
-        
-        <button onclick="closeBlockedModal()" style="background:#475569;margin-top:15px;">Close</button>
+        <div id="blockedList" style="margin:12px 0;font-size:14px;max-height:200px;overflow-y:auto;"></div>
+        <button onclick="closeBlockedModal()" style="background:#475569;margin-top:10px;">Close</button>
+    </div>
+</div>
+
+<!-- Registered Numbers Modal -->
+<div class="modal" id="registeredModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:1000;">
+    <div style="background:#1e2937;width:90%;max-width:460px;border-radius:16px;padding:20px;">
+        <h3>📱 Add / Update Registered Number</h3>
+        <div class="timerRow">
+            <input id="regNumber" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number">
+        </div>
+        <div class="timerRow" style="margin-top:8px;">
+            <input id="regWebhook" type="text" placeholder="Full webhook URL">
+        </div>
+        <button class="blue" onclick="addRegisteredNumber()">Save</button>
+        <button onclick="closeRegisteredModal()" style="background:#475569;margin-top:10px;">Close</button>
     </div>
 </div>
 
 <!-- Help Modal -->
-<div class="modal" id="helpModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>ℹ️ Help - What Can It Do?</h3>
-            <button onclick="closeHelpModal()" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;">&times;</button>
+<div class="modal" id="helpModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;z-index:1000;">
+    <div style="background:#1e2937;width:90%;max-width:460px;border-radius:16px;padding:20px;">
+        <h3>ℹ️ Help</h3>
+        <div style="font-size:14px;line-height:1.5;color:#cbd5e1;">
+            <p>• Enter a registered number in "From" field from where the call will be placed.</p>
+            <p>• Enter any number in "To" field where the call will ring.  (10 digits).</p>
+            <p>• The app automatically adds 0 for calling, so avoid adding 0 at the beginning of numbers.</p>
+            <p>• Use Auto mode for repeated calls.</p>
+            <p>• Use Manage registered numbers to register a new number along with url.</p>
         </div>
-        
-        <div class="how-it-works">
-            <h4>📱 Basic Usage</h4>
-            <p>1. Enter <strong>From</strong> and <strong>To</strong> numbers (10 digits).</p>
-            <p>2. Click <strong>Start Call</strong> to trigger immediately.</p>
-            
-            <h4>⏱️ Auto Mode</h4>
-            <p>Set your desired interval and turn <strong>Auto ON</strong>. The app will automatically trigger calls at regular intervals with countdown and progress ring.</p>
-            
-            <h4>🚫 Blocked Numbers</h4>
-            <p>Click <strong>Manage Blocked Numbers</strong> to add or remove numbers. Blocked numbers cannot be used for calls.</p>
-            
-            <h4>🔄 Number Format</h4>
-            <p>Numbers are automatically normalized. You can enter with or without +880 or leading zero.</p>
-            
-            <p><strong>Firebase</strong> automatically saves your blocked numbers so they persist even after closing the app.</p>
-        </div>
-        
-        <button onclick="closeHelpModal()" style="background:#475569;margin-top:20px;">Close</button>
+        <button onclick="closeHelpModal()" style="background:#475569;margin-top:15px;">Close</button>
     </div>
 </div>
 
@@ -323,48 +152,33 @@ const firebaseConfig = {
     projectId: "callcontrol-763b9",
     storageBucket: "callcontrol-763b9.firebasestorage.app",
     messagingSenderId: "953707696756",
-    appId: "1:953707696756:web:c72999ad288f9a8de47721",
-    measurementId: "G-CNC86ZSEDN"
+    appId: "1:953707696756:web:c72999ad288f9a8de47721"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-db.ref("test").set({ connected: true, time: Date.now() }).catch(() => {});
-
 let auto = false;
 let interval = 45;
 let countdown = 45;
 let blockedNumbers = [];
+let registeredNumbers = {};
 
-db.ref("blockedNumbers").on("value", (snap) => {
-    blockedNumbers = Array.isArray(snap.val()) ? snap.val() : [];
-    if (document.getElementById("blockedModal").style.display === "flex") renderBlockedList();
-}, (err) => console.error(err));
+db.ref("blockedNumbers").on("value", snap => blockedNumbers = Array.isArray(snap.val()) ? snap.val() : []);
+db.ref("registeredNumbers").on("value", snap => registeredNumbers = snap.val() || {});
 
-function renderBlockedList() {
-    const listEl = document.getElementById("blockedList");
-    listEl.innerHTML = blockedNumbers.length === 0 
-        ? "<strong>✅ No blocked numbers</strong>" 
-        : `<strong>Blocked:</strong><br>` + blockedNumbers.map(n => `• ${n}`).join("<br>");
+function norm(n) {
+    if (!n) return "";
+    n = String(n).replace(/\D/g,'');
+    if (n.startsWith("880")) n = n.slice(3);
+    return n.replace(/^0+/, '');
 }
 
-function openBlockedModal() {
-    document.getElementById("blockedModal").style.display = "flex";
-    renderBlockedList();
-}
-
-function closeBlockedModal() {
-    document.getElementById("blockedModal").style.display = "none";
-    document.getElementById("blockInput").value = "";
-}
-
-function openHelpModal() {
-    document.getElementById("helpModal").style.display = "flex";
-}
-
-function closeHelpModal() {
-    document.getElementById("helpModal").style.display = "none";
+function formatForCall(n) {
+    n = String(n).replace(/\D/g,'');
+    if (n.startsWith("880")) n = n.slice(3);
+    if (!n.startsWith("0") && n.length === 10) n = "0" + n;
+    return n;
 }
 
 function show(msg, isError = false) {
@@ -375,19 +189,47 @@ function show(msg, isError = false) {
     setTimeout(() => p.classList.remove("show"), 2800);
 }
 
-function norm(n) {
-    if (!n) return "";
-    n = String(n).replace(/\D/g, '');
-    if (n.startsWith("880")) n = n.slice(3);
-    if (n.startsWith("0")) n = n.slice(1);
-    return n;
+async function startCall() {
+    const f = document.getElementById("fromNumber").value;
+    const t = document.getElementById("toNumber").value;
+    const nf = norm(f);
+    const nt = formatForCall(t);
+
+    if (nf.length !== 10 || nt.length !== 11) return show("Enter valid 10 digit numbers", true);
+    if (blockedNumbers.includes(nf) || blockedNumbers.includes(nt)) return show("This number is blocked", true);
+
+    const triggerUrl = registeredNumbers[nf];
+    if (!triggerUrl) return show("Number not found in database", true);
+
+    try {
+        await fetch(triggerUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: nt
+        });
+        show(`Calling ${nt} from ${nf}`);
+    } catch (e) {
+        show("Network or webhook error", true);
+    }
+
+    countdown = interval;
 }
 
-function route(f, t) {
-    f = norm(f); t = norm(t);
-    if (f === "1712089248" && t === "1726876252") return "https://trigger.macrodroid.com/d0912b66-bbad-4e3e-82ce-d842fd086d68/fr";
-    if (f === "1726876252" && t === "1712089248") return "https://trigger.macrodroid.com/6cb1ed42-d988-4b00-8b07-7bf9e4a90a1b/nn";
-    return "ERR";
+function addRegisteredNumber() {
+    const num = norm(document.getElementById("regNumber").value);
+    const url = document.getElementById("regWebhook").value.trim();
+
+    if (num.length !== 10) return show("Enter a valid 10 digit number", true);
+    if (!url || !url.startsWith("http")) return show("Enter a valid webhook URL", true);
+
+    registeredNumbers[num] = url;
+    db.ref("registeredNumbers").set(registeredNumbers)
+        .then(() => {
+            show("Registered successfully");
+            document.getElementById("regNumber").value = "";
+            document.getElementById("regWebhook").value = "";
+        })
+        .catch(() => show("Failed to save", true));
 }
 
 function blockNumber() {
@@ -395,22 +237,19 @@ function blockNumber() {
     if (num.length !== 10) return show("Enter a valid 10 digit number", true);
     if (blockedNumbers.includes(num)) return show("Number already blocked");
     blockedNumbers.push(num);
-    db.ref("blockedNumbers").set(blockedNumbers).catch(() => show("Failed to save", true));
+    db.ref("blockedNumbers").set(blockedNumbers);
     document.getElementById("blockInput").value = "";
     show("Number blocked successfully");
-    renderBlockedList();
 }
 
 function unblockNumber() {
     let num = norm(document.getElementById("blockInput").value);
-    if (num.length !== 10) return show("Enter a valid 10 digit number", true);
     const idx = blockedNumbers.indexOf(num);
     if (idx === -1) return show("Number is not blocked");
     blockedNumbers.splice(idx, 1);
-    db.ref("blockedNumbers").set(blockedNumbers).catch(() => show("Failed to unblock", true));
+    db.ref("blockedNumbers").set(blockedNumbers);
     document.getElementById("blockInput").value = "";
     show("Number unblocked successfully");
-    renderBlockedList();
 }
 
 function applyInterval() {
@@ -422,26 +261,6 @@ function applyInterval() {
     show(`Interval set: ${interval}s`);
 }
 
-async function startCall() {
-    const f = document.getElementById("fromNumber").value;
-    const t = document.getElementById("toNumber").value;
-    const nf = norm(f), nt = norm(t);
-
-    if (nf.length !== 10 || nt.length !== 10) return show("Enter valid 10 digit numbers", true);
-    if (blockedNumbers.includes(nf) || blockedNumbers.includes(nt)) return show("This number is blocked", true);
-
-    const res = route(f, t);
-    if (res === "ERR") return show("Number not found in database", true);
-
-    try {
-        await fetch(res, { method: 'GET', mode: 'no-cors' });
-        show("Trigger sent successfully");
-    } catch (e) {
-        show("Network or webhook error", true);
-    }
-    countdown = interval;
-}
-
 function toggleAuto() {
     auto = !auto;
     document.getElementById("toggleBtn").textContent = auto ? "Auto ON" : "Auto OFF";
@@ -449,6 +268,31 @@ function toggleAuto() {
     document.getElementById("countdown").textContent = auto ? `Next trigger in: ${countdown}s` : "Timer disabled";
 }
 
+function openBlockedModal() {
+    document.getElementById("blockedModal").style.display = "flex";
+}
+
+function closeBlockedModal() {
+    document.getElementById("blockedModal").style.display = "none";
+}
+
+function openRegisteredModal() {
+    document.getElementById("registeredModal").style.display = "flex";
+}
+
+function closeRegisteredModal() {
+    document.getElementById("registeredModal").style.display = "none";
+}
+
+function openHelpModal() {
+    document.getElementById("helpModal").style.display = "flex";
+}
+
+function closeHelpModal() {
+    document.getElementById("helpModal").style.display = "none";
+}
+
+// Timer
 setInterval(() => {
     if (!auto) return;
     countdown = Math.max(0, countdown - 1);
@@ -459,12 +303,12 @@ setInterval(() => {
     document.getElementById("ringText").textContent = countdown;
 }, 1000);
 
+// Live input cleaning
 document.querySelectorAll('input[type="tel"]').forEach(inp => {
     inp.addEventListener('input', () => {
-        inp.value = inp.value.replace(/\D/g, '').slice(0, 10);
+        inp.value = inp.value.replace(/\D/g, '').slice(0,10);
     });
 });
 </script>
-
 </body>
 </html>
